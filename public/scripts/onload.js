@@ -56,6 +56,26 @@ async function setupDisplayCanvas() {
             }
         }
     );
+        
+    var isMusicPlaying = false;
+    canvas.addEventListener(
+        'mouseup',
+        async (e) =>
+        {
+            var {entity} = await SDK3DVerse.engineAPI.castScreenSpaceRay(e.clientX, e.clientY, true);
+            console.log("Clicked : ",entity)
+            audioPlayerEntity = await SDK3DVerse.engineAPI.findEntitiesByEUID("0abf6f76-f6c2-42cf-b002-31614a0292d4")
+            console.log("audioPlayerEntity : ",audioPlayerEntity)
+            if(entity && await entity.getEUID() === "404f5c94-eb5d-4bee-99dd-d8d6c5505fe4")
+            {
+                isMusicPlaying = !isMusicPlaying;
+                console.log("playsound")
+                entitiesToSend = [audioPlayerEntity[0]]
+                console.log("Sending Entities", entitiesToSend)
+                await SDK3DVerse.engineAPI.fireEvent(AppConfig.soundEventMapUUID, "playSound", entitiesToSend, {"?playing": isMusicPlaying})          
+            }
+        }
+    );
 
     window.addEventListener('keydown', setupKeyboardLayout);
 }
@@ -105,7 +125,7 @@ async function setupPlayerSystem() {
         playerEntity,
         cameraEntity,
         characterController
-    } = await SpawnPlayer(AppConfig.charcterControllerUUID);
+    } = await SpawnPlayer(AppConfig.characterControllerUUID);
 
     window.onbeforeunload = () =>
     {
